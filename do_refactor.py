@@ -2,7 +2,7 @@ from helpers import elapsed_time, get_files, refactor
 
 
 @elapsed_time
-def main(debug=False):
+def main(debug=True):
     files, result_dir, total_count, workdir = get_files(debug)
     refactor(files, result_dir, total_count, workdir)
 

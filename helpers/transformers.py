@@ -1,7 +1,8 @@
 import libcst as cst
 from libcst import matchers as m
-from conf import logger
+from conf import logger, META_KEY_NAME
 from templates import response_meta, start_url_meta, base_req_template
+
 
 
 class MetaInitUrlTransformer(cst.CSTTransformer):
@@ -31,20 +32,20 @@ class MetaInitUrlTransformer(cst.CSTTransformer):
                 init_val = response_meta if self.response else start_url_meta
                 if elements:
                     has_init_url = [elem for elem in elements if (
-                        not isinstance(elem.value, cst.Dict)) and elem.key.value == "'initial_url'"]
+                        not isinstance(elem.value, cst.Dict)) and elem.key.value == META_KEY_NAME]
                     if not has_init_url:
                         new_elements = (
                             *elements[:-1],
                             elements[-1].with_changes(comma=cst.Comma()),
                             cst.DictElement(
-                                key=cst.SimpleString(value="'initial_url'"), value=init_val
+                                key=cst.SimpleString(value=META_KEY_NAME), value=init_val
                             ),
                         )
                     else:
                         return updated_node
                 else:
                     new_elements = (cst.DictElement(
-                        key=cst.SimpleString(value="'initial_url'"), value=init_val
+                        key=cst.SimpleString(value=META_KEY_NAME), value=init_val
                     ),
                     )
                 new_dict = cst.Dict(elements=new_elements)
@@ -81,7 +82,7 @@ def update_yields(node: cst.Yield | cst.Return, response=False) -> cst.Yield:
     if not meta_in_args:
         new_args = [*yield_args,
                     cst.Arg(keyword=cst.Name('meta'), value=cst.Dict(elements=[cst.DictElement(
-                        key=cst.SimpleString(value="'initial_url'"), value=init_val
+                        key=cst.SimpleString(value=META_KEY_NAME), value=init_val
                     ), ]))]
         old_call = node.value
         new_call = old_call.with_changes(args=new_args)
